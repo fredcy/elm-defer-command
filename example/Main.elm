@@ -22,6 +22,7 @@ import Html.Events as HE
 
 
 type alias Model =
+    -- add the Defer component to the model
     { numInputs : Int
     , defer : Defer.Model
     , enabled : Bool
@@ -29,6 +30,7 @@ type alias Model =
 
 
 type Msg
+    -- add the type for messages to the Defer component
     = AddInput
     | DeferMsg Defer.Msg
     | SetEnable Bool
@@ -54,6 +56,7 @@ init =
         focusCmd =
             focus (inputSelector 1)
     in
+        -- initialize the Defer component along with the main model
         { numInputs = 1
         , defer = Defer.init [ focusCmd ]
         , enabled = True
@@ -73,6 +76,7 @@ update msg model =
                     focus (inputSelector numInputs')
             in
                 if model.enabled then
+                    -- this is the normal usage of Defer
                     let
                         ( deferModel, deferCmd ) =
                             Defer.update (Defer.AddCmd focusCmd) model.defer
@@ -80,9 +84,11 @@ update msg model =
                         { model | numInputs = numInputs', defer = deferModel }
                             ! [ Cmd.map DeferMsg deferCmd ]
                 else
+                    -- this shows what happens if we don't defer the command
                     { model | numInputs = numInputs' } ! [ focusCmd ]
 
         DeferMsg deferMsg ->
+            -- the usual forwarding of messages to a component
             let
                 ( deferModel, deferCmd ) =
                     Defer.update deferMsg model.defer
@@ -95,6 +101,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
+    -- proxy the Defer component's subscriptions
     Defer.subscriptions model.defer |> Sub.map DeferMsg
 
 

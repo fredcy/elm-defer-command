@@ -4,7 +4,7 @@ module Defer exposing (Model, Msg(AddCmd), init, update, subscriptions)
 least once.
 
 This is useful such as when setting focus on a newly-created element as we can
-be sure that the element is in the actual DOM and and be manipulated via port
+be sure that the element is in the actual DOM and can be manipulated via port
 commands.
 
 # Wiring
