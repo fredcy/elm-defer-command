@@ -5,7 +5,7 @@ import Html.App
 
 
 type alias Model =
-    {}
+    { state : String }
 
 
 type Msg
@@ -23,7 +23,7 @@ main =
 
 init : ( Model, Cmd Msg )
 init =
-    ( {}, Cmd.none )
+    ( Model "foobar", Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
