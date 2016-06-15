@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Main</title>
+        <style>
+         html,head,body { padding:0; margin:0; }
+         body { font-family: calibri, helvetica, arial, sans-serif; }
+         input[type=text] { display: block; }
+        </style>
+    </head>
+    <body>
+        <script type="text/javascript" src="elm.js"></script>
+        <script type="text/javascript">
+         var app = Elm.Main.fullscreen();
+
+         app.ports.focus.subscribe(function(selector) {
+             // Attempt to immediately set focus on the element with given selector.
+             console.log("focus", selector);
+             var nodes = document.querySelectorAll(selector);
+             if (nodes.length == 1) {
+                 if (document.activeElement !== nodes[0]) {
+                     nodes[0].focus();
+                 }
+             }
+             else {
+                 console.log("focus: unexpected matching nodes:", nodes);
+             }
+         });
+        </script>
+    </body>
+</html>
