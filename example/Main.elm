@@ -13,24 +13,33 @@ import Html.Events as HE
    field the update function also adds a command to the 'defer' component to set
    focus on that field.
 
-   The program has a checkbox to enable/disable deferred focus commands. When
-   enabled the new input fields should get focus. When disabled they usually do
-   not get focus because the commmand sent over the focus port is received and
-   acted on by the javascript side before the new element has been mounted on
-   the DOM.
+   The program has a checkbox to enable/disable deferred focus commands to show
+   that deferring commands this way matters. When enabled the new input fields
+   should get focus. When disabled they usually do not get focus because the
+   commmand sent over the focus port is received and acted on by the javascript
+   side before the new element has been mounted on the DOM.
 -}
 
 
+{-| Define the model, including the opaque model for the Defer component.
+-}
 type alias Model =
-    -- add the Defer component to the model
-    { numInputs : Int
-    , defer : Defer.Model
-    , enabled : Bool
+    { numInputs :
+        Int
+        -- the number of Html input fields to display
+    , defer :
+        Defer.Model
+        -- the Defer helper component
+    , enabled :
+        Bool
+        -- if True, defer focus commands; else run focus commands immediately
     }
 
 
+{-| Set up the program's messages, including those forwarded to the Defer
+component.
+-}
 type Msg
-    -- add the type for messages to the Defer component
     = AddInput
     | DeferMsg Defer.Msg
     | SetEnable Bool
@@ -46,17 +55,22 @@ main =
         }
 
 
+{-| We send HTML selector values over this port to request focus on the element
+matched by the selector. See the index.html file for the corresponding
+Javascript code.
+-}
 port focus : String -> Cmd msg
 
 
+{-| Create initial model as usual, initializing the Defer component as well with
+an initial command to focus on the one and only input element (to start).
+-}
 init : ( Model, Cmd Msg )
 init =
     let
-        -- set initial focus on first input element
         focusCmd =
             focus (inputSelector 1)
     in
-        -- initialize the Defer component along with the main model
         { numInputs = 1
         , defer = Defer.init [ focusCmd ]
         , enabled = True
@@ -64,6 +78,11 @@ init =
             ! []
 
 
+{-| Update the model as usual, passing along the opaque DeferMsg commands to the
+Defer commpoent. When handling the AddInput command (triggered by user action)
+we either defer a focus command (on the new Input element) or run the focus
+command immediately (to show the benefit of deferring).
+-}
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg |> Debug.log "msg" of
@@ -109,11 +128,16 @@ subscriptions model =
 -- view
 
 
+{-| Show the input elements and controls. Note that the Defer component has no
+view of its own.
+-}
 view : Model -> Html.Html Msg
 view model =
     Html.div [] (enableView model :: buttonView :: List.map inputView [1..model.numInputs])
 
 
+{-| Show control that enables/disabled deferred commands.
+-}
 enableView : Model -> Html.Html Msg
 enableView model =
     Html.label []
@@ -122,6 +146,8 @@ enableView model =
         ]
 
 
+{-| Show control for adding new Input field.
+-}
 buttonView : Html.Html Msg
 buttonView =
     Html.button [ HE.onClick AddInput ] [ Html.text "add input" ]
@@ -136,6 +162,8 @@ inputView i =
 -- utilities
 
 
+{-| Html "id" value for i'th input element in model
+-}
 inputId : Int -> String
 inputId i =
     "input" ++ toString i
