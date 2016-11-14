@@ -2,7 +2,6 @@ port module Main exposing (main)
 
 import Defer
 import Html exposing (Html)
-import Html.App
 import Html.Attributes as HA
 import Html.Events as HE
 
@@ -45,9 +44,9 @@ type Msg
     | SetEnable Bool
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
-    Html.App.program
+    Html.program
         { init = init
         , update = update
         , view = view
@@ -88,11 +87,11 @@ update msg model =
     case msg |> Debug.log "msg" of
         AddInput ->
             let
-                numInputs' =
+                numInputs_ =
                     model.numInputs + 1
 
                 focusCmd =
-                    focus (inputSelector numInputs')
+                    focus (inputSelector numInputs_)
             in
                 if model.enabled then
                     -- this is the normal usage of Defer
@@ -100,11 +99,11 @@ update msg model =
                         ( deferModel, deferCmd ) =
                             Defer.update (Defer.AddCmd focusCmd) model.defer
                     in
-                        { model | numInputs = numInputs', defer = deferModel }
+                        { model | numInputs = numInputs_, defer = deferModel }
                             ! [ Cmd.map DeferMsg deferCmd ]
                 else
                     -- this shows what happens if we don't defer the command
-                    { model | numInputs = numInputs' } ! [ focusCmd ]
+                    { model | numInputs = numInputs_ } ! [ focusCmd ]
 
         DeferMsg deferMsg ->
             -- the usual forwarding of messages to a component
@@ -133,7 +132,7 @@ view of its own.
 -}
 view : Model -> Html.Html Msg
 view model =
-    Html.div [] (enableView model :: buttonView :: List.map inputView [1..model.numInputs])
+    Html.div [] (enableView model :: buttonView :: List.map inputView (List.range 1 model.numInputs))
 
 
 {-| Show control that enables/disabled deferred commands.
@@ -142,7 +141,7 @@ enableView : Model -> Html.Html Msg
 enableView model =
     Html.label []
         [ Html.text "enable deferred focus"
-        , Html.input [ HA.type' "checkbox", HE.onCheck SetEnable, HA.checked model.enabled ] []
+        , Html.input [ HA.type_ "checkbox", HE.onCheck SetEnable, HA.checked model.enabled ] []
         ]
 
 
@@ -155,7 +154,7 @@ buttonView =
 
 inputView : Int -> Html.Html Msg
 inputView i =
-    Html.input [ HA.type' "text", HA.id <| inputId i ] []
+    Html.input [ HA.type_ "text", HA.id <| inputId i ] []
 
 
 
